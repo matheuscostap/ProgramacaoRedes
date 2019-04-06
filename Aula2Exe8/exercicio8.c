@@ -1,6 +1,6 @@
 //
 //  main.c
-//  ProgramacaoRedes
+//  Aula2Exe8
 //
 //  Created by Matheus Prates da Costa on 05/04/2019.
 //  Copyright © 2019 Matheus Prates da Costa. All rights reserved.
