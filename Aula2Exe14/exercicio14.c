@@ -23,6 +23,7 @@ int main(int argc, const char * argv[]) {
   scanf("%d", &produto);
 
   if (produto >= 1 && produto <= 4) {
+
     switch (produto) {
       case 1:
         printf("Escolha a quantidade de Banana desejada: \n");
