@@ -14,7 +14,15 @@ int main(int argc, const char * argv[]) {
   int vetorX[] = {10,20,30,40,50,60,70,80,90,100};
   int vetorY[10];
 
+  for(int i=0; i < 10; i++){
+    printf("vetorX[%d] -> %d\n",i,vetorX[i]);
+  }
 
+  preencherVetor(vetorX, vetorY);
+
+  for(int i=0; i < 10; i++){
+    printf("vetorY[%d] -> %d\n",i,vetorY[i]);
+  }
 
   return 0;
 }
