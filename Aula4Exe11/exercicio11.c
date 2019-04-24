@@ -10,7 +10,6 @@
 
 int adicionar(int numero, int vetorPar[], int vetorImpar[]);
 int adicionarParaVetor(int numero, int vetor[]);
-int verificaVetorCheio(int vetor[]);
 
 int main(int argc, const char * argv[]) {
   int vetorPar[10] = {0};
@@ -42,39 +41,28 @@ int main(int argc, const char * argv[]) {
 
 int adicionar(int numero, int vetorPar[], int vetorImpar[]){
   if (numero % 2 == 0) {
+    printf("Vetor par -> ");
     return adicionarParaVetor(numero, vetorPar);
   }else{
+    printf("Vetor impar -> ");
     return adicionarParaVetor(numero, vetorImpar);
   }
 }
 
 int adicionarParaVetor(int numero, int vetor[]){
+  int indexUltimoVazio = -1;
   for(int i = 0; i < 10; i++){
-    if (!verificaVetorCheio(i,vetor)) {
-      vetor[i] = numero;
-      return 1;
-    }else{
-      return 0;
+    if (vetor[i] == 0) {
+      indexUltimoVazio = i;
     }
   }
-}
 
-int verificaVetorCheio(int index, int vetor[]){
-  if (vetor[index] != 0) {
-    return 0;
-  }else{
-    return 1;
-  }
-}
-
-
-for(int i = 0; i < 10; i++){
-  if(vetorPar[i] == 0){
-    vetorPar[i] = numero;
-    printf("%d adicionado no vetor par. \n", numero);
+  if (indexUltimoVazio != -1) {
+    vetor[indexUltimoVazio] = numero;
+    printf("%d adicionado. \n", numero);
     return 1;
   }else{
-    printf("Vetor par cheio! \n");
+    printf("cheio! \n");
     return 0;
   }
 }
