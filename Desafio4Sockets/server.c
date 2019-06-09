@@ -82,10 +82,20 @@ int main(void){
   while(1){
     int bytes;
     bytes = recv(sock, mensagem, TAMANHO_MENSAGEM,0);
-    if(bytes >= 0){
-      mensagem[bytes] = '\0'; //Char 0 para finalizar a string
-      printf("Recebido: %s\n", mensagem);
-    }
+    mensagem[bytes] = '\0'; //Char 0 para finalizar a string
+    printf("Recebido: %s\n", mensagem);
+    printf("Enviar mensagem: ");
+    //Limpa o buffer
+    bzero(mensagem, TAMANHO_MENSAGEM);
+    //Leitura do teclado
+    fgets(mensagem,TAMANHO_MENSAGEM,stdin);
+    //Envia a mensagem
+    write(sock, mensagem, strlen(mensagem));
+    bzero(mensagem, TAMANHO_MENSAGEM);
+    /*int s = send(sock,mensagem,strlen(mensagem),0);
+    if (s < 0) {
+      printf("Erro ao enviar mensagem\n");
+    }*/
 
   }
 }
