@@ -9,12 +9,13 @@
 #define TAMANHO_MENSAGEM 1024
 #define PORTA 2000 //Porta do servidor
 
-struct sockaddr_in server; //Struct para tratar enderecos de internet
+void* threadLeitura(void* args);
+void escreverMensagem();
 
+struct sockaddr_in server; //Struct para tratar enderecos de internet
 char mensagem[TAMANHO_MENSAGEM];
 int sock;
-
-void* threadLeitura(void* args);
+int jogou = 0;
 
 int main(int argc, char const *argv[]) {
 
@@ -39,34 +40,32 @@ int main(int argc, char const *argv[]) {
 
     int ret = pthread_create(&id,NULL,&threadLeitura,NULL);
 
-    if(ret == 0){
+    /*if(ret == 0){
       printf("Thread de leitura criada\n");
     }else{
       printf("Erro ao criar thread de leitura\n");
-    }
+    }*/
   }else{
     printf("Erro ao conectar.\n");
     exit(1);
   }
 
   while(1){
+    if(!jogou){
+      printf("-- JOGADA --\n");
+      printf("1 - PEDRA\n");
+      printf("2 - PAPEL\n");
+      printf("3 - TESOURA\n");
+      printf("------------\n");
 
-    do{
-      scanf("%80s", mensagem);
-      printf("Enviei: %s \n",mensagem);
-      send(sock, mensagem, strlen(mensagem), 0);
-    }while(mensagem[0] != '.');
-
-    printf("Close socket.\n");
-    close(sock);
+      escreverMensagem();
+    }
   }
 
   return 0;
 }
 
 void* threadLeitura(void* args){
-  printf("Thread inicio\n");
-
   int bytes;
   do{
     bytes = recv(sock, mensagem, TAMANHO_MENSAGEM,0);
@@ -76,6 +75,13 @@ void* threadLeitura(void* args){
     }
   }while (mensagem[0] != '.' && bytes != 0);
 
-  printf("Thread fim\n");
+  printf("Close socket.\n");
+  close(sock);
+}
 
+void escreverMensagem(){
+  scanf("%80s", mensagem);
+  printf("Enviei: %s \n",mensagem);
+  send(sock, mensagem, strlen(mensagem), 0);
+  jogou = 1;
 }
