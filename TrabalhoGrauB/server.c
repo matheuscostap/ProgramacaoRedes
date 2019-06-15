@@ -18,20 +18,26 @@ void enviarMensagem(char msg[]);
 void textoJogada(int jogada);
 
 
+//Enum para representar as jogadas
 typedef enum {PEDRA = 1, PAPEL = 2, TESOURA = 3} JOGADA;
 
 struct sockaddr_in server; //Struct para tratar enderecos de internet
 struct sockaddr cliente; //Struct para guardar infos de cliente
-int socketCliente;
-char mensagem[TAMANHO_MENSAGEM] = "0";
-int jogadaCliente = 0;
+int socketCliente; //Variável para armazenar o descritor do socket do cliente
+char mensagem[TAMANHO_MENSAGEM] = "0"; //buffer para as mensagens
+int jogadaCliente = 0; //Variável para armazenar a jogada do cliente
 int parar = 1;
 
 int main(int argc, char const *argv[]) {
 
-  pthread_t id;
+  pthread_t id; //variável para guardar o identificador da thread
   int sock;
 
+  //Abertura do socket do servidor
+  //Função socket
+  //parâmetros: 1 - domínio: AF_INET para processos de sistemas diferentes
+  //            2 - tipo de socket: SOCK_STREAM conexão bidirecional de um fluxo de bytes
+  //            3 - protocolo: 0 para um protocolo padrão
   printf("Criando socket do servidor...\n");
   sock = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -42,11 +48,13 @@ int main(int argc, char const *argv[]) {
     exit(1);
   }
 
-  server.sin_family = AF_INET;
-  server.sin_port = htons(PORTA);
-  server.sin_addr.s_addr = inet_addr("127.0.0.1");
-  //memset(server.sin_zero, 0x0, 8);
+  //Associar porta e endereço ip para o socket com a função bind
+  //Configura a struct com as informações de rede
+  server.sin_family = AF_INET; //Família do endereço
+  server.sin_port = htons(PORTA); //Número da porta, htons() converte para o formate de rede
+  server.sin_addr.s_addr = inet_addr("127.0.0.1"); //Endereço ip, inet_addr() converte o ip para o formato binario de rede
 
+  //Configura o socket
   if(bind(sock, (struct sockaddr*) &server, sizeof(server)) != -1){
     printf("Bind com sucesso\n");
   }else{
@@ -54,6 +62,10 @@ int main(int argc, char const *argv[]) {
     exit(1);
   }
 
+  //Aguardar conexão de um cliente com a função listen
+  //listen() define o socket como passivo para aguardar conexões
+  //parâmetros: 1 - socket: o socket criado anteriormente
+  //            2 - quantidade de conexões que podem ficar pendentes
   int ret;
   ret = listen(sock,1);
   if (ret != 1) {
@@ -63,28 +75,30 @@ int main(int argc, char const *argv[]) {
     exit(1);
   }
 
+  //Aceitar a requisição do cliente
+  //accept() cria um novo socket para a primeira conexão pendente e retorna o descritor dele
+  //parâmetros: 1 - socket: o socket criado para o servidors
+  //            2 - um ponteiro para uma struct do tipo sockaddr que irá receber as infos do cliente
+  //            3 - o tamanho da struct para inicalizar corretamente
   socklen_t tamanho_sock = sizeof(struct sockaddr);
   socketCliente = accept(sock, (struct sockaddr*) &cliente, &tamanho_sock);
 
   if (socketCliente != -1) {
     printf("Conexão recebida com sucesso\n");
+
+    //Cria uma nova thread para leitura de dados
     ret = pthread_create(&id,NULL,&threadLeitura,NULL);
-
-    /*if(ret == 0){
-      printf("Thread de leitura criada\n");
-    }else{
-      printf("Erro ao criar thread de leitura\n");
-    }*/
-
   }else{
     perror("Erro ao receber conexão: ");
     exit(1);
   }
 
+  //Pausa a execução por 1 segundo para sincronizar as saidas nos dois lados
   sleep(1);
   enviarMensagem("Bem vindo ao servidor de JoKenPo");
 
   while(parar){
+    //Menu com as as jogadas
     int jogadaServidor;
     printf("-- JOGADA --\n");
     printf("1 - PEDRA\n");
@@ -101,6 +115,7 @@ int main(int argc, char const *argv[]) {
       return 0;
     }
 
+    //Aguarda a jogada do clinte
     while(jogadaCliente == 0){
       printf("Aguardando jogada do adversário...\n");
       sleep(1);
@@ -111,6 +126,7 @@ int main(int argc, char const *argv[]) {
     printf("Jogada do Servidor: ");
     textoJogada(jogadaServidor);
 
+    //Verifica o vencedor da partida e envia o resultado para os dois lados
     if (partida(jogadaServidor, jogadaCliente) == jogadaServidor){
       printf("Você venceu!\n");
       enviarMensagem("Você perdeu!\n");
@@ -119,16 +135,17 @@ int main(int argc, char const *argv[]) {
       enviarMensagem("Você venceu!\n");
     }
 
+    //Fecha o socket do cliente
     close(socketCliente);
     parar = 0;
   }
 
+  //Fecha o socket do servidor
   close(sock);
-
   return 0;
 }
 
-
+//Função que a thread utilza par ler os dados
 void* threadLeitura(void* args){
   int bytes;
   do{

@@ -13,14 +13,20 @@ void* threadLeitura(void* args);
 void escreverMensagem();
 
 struct sockaddr_in server; //Struct para tratar enderecos de internet
-char mensagem[TAMANHO_MENSAGEM];
-int sock;
-int jogou = 0;
+char mensagem[TAMANHO_MENSAGEM]; //buffer para as mensagens
+int sock; //variável para armazenar o descritor do socket do servidor
+int jogou = 0; //flag para saber se o cliente ja jogou
 
 int main(int argc, char const *argv[]) {
 
+
+  //Abertura do socket do servidor
+  //Função socket
+  //parâmetros: 1 - domínio: AF_INET para processos de sistemas diferentes
+  //            2 - tipo de socket: SOCK_STREAM conexão bidirecional de um fluxo de bytes
+  //            3 - protocolo: 0 para um protocolo padrão
   printf("Criando socket do servidor...\n");
-  pthread_t id;
+  pthread_t id; //variável para guardar o identificador da thread
   sock = socket(AF_INET, SOCK_STREAM, 0);
 
   if (sock != -1) {
@@ -30,27 +36,24 @@ int main(int argc, char const *argv[]) {
     exit(1);
   }
 
-  server.sin_family = AF_INET;
-  server.sin_port = htons(PORTA);
-  server.sin_addr.s_addr = inet_addr("127.0.0.1");
-  //memset(server.sin_zero, 0x0, 8);
+  //Configura a struct com as informações de rede do servidor
+  server.sin_family = AF_INET; //Família do endereço
+  server.sin_port = htons(PORTA); //Número da porta, htons() converte para o formate de rede
+  server.sin_addr.s_addr = inet_addr("127.0.0.1"); //Endereço ip, inet_addr() converte o ip para o formato binario de rede
 
+  //Tenta conectar o servidor com a função connect()
   if(connect(sock, (struct sockaddr*) &server, sizeof(server)) != -1){
     printf("Conectado no servidor!\n");
 
+    //Cria uma nova thread para leitura de dados
     int ret = pthread_create(&id,NULL,&threadLeitura,NULL);
-
-    /*if(ret == 0){
-      printf("Thread de leitura criada\n");
-    }else{
-      printf("Erro ao criar thread de leitura\n");
-    }*/
   }else{
     printf("Erro ao conectar.\n");
     exit(1);
   }
 
   while(1){
+    //Menu com as jogadas
     if(!jogou){
       printf("-- JOGADA --\n");
       printf("1 - PEDRA\n");
@@ -65,6 +68,7 @@ int main(int argc, char const *argv[]) {
   return 0;
 }
 
+//Função que a thread utilza par ler os dados
 void* threadLeitura(void* args){
   int bytes;
   do{
